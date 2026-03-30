@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Genostra Admin</title>
+<style>
+body { font-family: Arial; margin: 20px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+th { background-color: #f2f2f2; }
+button { background: #61c3c0; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>Genostra Admin Dashboard</h1>
+<input type="password" id="adminPass" placeholder="Admin Password" style="padding:10px;">
+<button onclick="loginAdmin()">Login</button>
+
+<div id="adminPanel" style="display:none;">
+  <h2>Users</h2>
+  <button onclick="loadUsers()">Refresh Users</button>
+  <table id="usersTable"></table>
+
+  <h2>Tasks</h2>
+  <button onclick="loadTasks()">Refresh Tasks</button>
+  <table id="tasksTable"></table>
+
+  <h2>Lottery</h2>
+  <button onclick="loadLottery()">Refresh Draws</button>
+  <table id="lotteryTable"></table>
+</div>
+
+<script>
+let token = localStorage.getItem('adminToken');
+if (token) showAdmin();
+
+function loginAdmin() {
+  const pass = document.getElementById('adminPass').value;
+  if (pass === 'admin123') { // Change this!
+    localStorage.setItem('adminToken', 'admin');
+    showAdmin();
+  } else {
+    alert('Wrong password');
+  }
+}
+
+function showAdmin() {
+  document.getElementById('adminPanel').style.display = 'block';
+  loadUsers();
+}
+
+async function api(path) {
+  const res = await fetch(path);
+  return await res.json();
+}
+
+async function loadUsers() {
+  const data = await api('/genostra/api/users'); // Add users list endpoint
+  const table = document.getElementById('usersTable');
+  table.innerHTML = '<tr><th>ID</th><th>Username</th><th>Wallet</th><th>Created</th></tr>' + 
+    data.data.map(u => `<tr><td>${u.id}</td><td>${u.username}</td><td>$${u.wallet}</td><td>${u.created_at}</td></tr>`).join('');
+}
+
+async function loadTasks() {
+  const data = await api('/genostra/api/tasks');
+  const table = document.getElementById('tasksTable');
+  table.innerHTML = '<tr><th>ID</th><th>User</th><th>Profit</th><th>Date</th></tr>' + 
+    data.data.map(t => `<tr><td>${t.id}</td><td>${t.task_code}</td><td>$${t.profit}</td><td>${t.created_at}</td></tr>`).join('');
+}
+
+async function loadLottery() {
+  const data = await api('/genostra/api/lottery');
+  const table = document.getElementById('lotteryTable');
+  table.innerHTML = '<tr><th>ID</th><th>Prize</th><th>Amount</th><th>Date</th></tr>' + 
+    data.data.map(l => `<tr><td>${l.id}</td><td>${l.prize_type}</td><td>$${l.amount}</td><td>${l.created_at}</td></tr>`).join('');
+}
+</script>
+</body>
+</html>

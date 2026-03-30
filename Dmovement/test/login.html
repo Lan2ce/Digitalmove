@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Test</title>
+<style>body { font-family: Arial; max-width: 400px; margin: 50px auto; padding: 20px; }
+input, button { width: 100%; padding: 10px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<h2>Login Test (test/test)</h2>
+<form id="loginForm">
+  <input type="text" id="username" placeholder="Username" value="test">
+  <input type="password" id="password" placeholder="Password" value="test">
+  <button type="submit">Login</button>
+</form>
+<pre id="result"></pre>
+
+<script>
+document.getElementById('loginForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData();
+  formData.append('raw', btoa(JSON.stringify({username: document.getElementById('username').value, password: document.getElementById('password').value}))); // Stub encrypt
+
+  const res = await fetch('/genostra/api/user/login', {
+    method: 'POST',
+    body: JSON.stringify({raw: btoa('{"username":"test","password":"test"}')}),
+    headers: {'Content-Type': 'application/json'}
+  });
+  document.getElementById('result').textContent = await res.text();
+};
+</script>
+</body>
+</html>
+
